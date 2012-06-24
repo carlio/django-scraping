@@ -13,6 +13,10 @@ _install_requires = [
             'django-annoying',
             'south',
             'celery',
+            'pyquery',
+            'requests',
+            
+            'Pillow', # TODO: make this an optional dependency
        ]
 
 setup( name='django-scraping',
