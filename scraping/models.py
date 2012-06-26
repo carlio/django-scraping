@@ -1,11 +1,11 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-from gubbins.db.fields import EnumField
+from gubbins.db.field import EnumField
 
 
 class PageSourceType(EnumField):
-    FISH = 'fish'
-    pass
+    RSS_FEED = 'rss'
+    SITE_INDEX = 'site'
 
 
 

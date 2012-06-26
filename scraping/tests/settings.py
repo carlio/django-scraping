@@ -1,4 +1,6 @@
 
+SCRAPER_CACHE_MODULE='scraping.cache.dummy'
+
 DATABASES = {
         'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
