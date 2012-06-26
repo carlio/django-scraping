@@ -1,5 +1,28 @@
 from django.db import models
 from django.core.urlresolvers import reverse
+from gubbins.db.fields import EnumField
+
+
+class PageSourceType(EnumField):
+    FISH = 'fish'
+    pass
+
+
+
+class ScraperPageSource(models.Model):
+    """
+    This model represents the initial source of scraper pages.
+    
+    One example use case is an RSS feed, which simply lists new pages
+    to be scraped. Another is the index page of a news site, which would
+    be periodically checked and new links to news articles or other index
+    pages would be started.
+    """
+    
+    url = models.URLField(max_length=1000)
+    scrape_every = models.IntegerField()
+
+    page_source_type = PageSourceType()
 
 
 class ScraperPage(models.Model):
