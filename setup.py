@@ -17,6 +17,8 @@ _install_requires = [
             'requests',
             
             'Pillow', # TODO: make this an optional dependency
+            
+            'django-gubbins', # TODO: this is not available on PyPI right now!
        ]
 
 setup( name='django-scraping',
