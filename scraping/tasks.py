@@ -1,19 +1,28 @@
 # -*- coding: UTF-8 -*-
 from celery.task import task, periodic_task
 from celery.task.sets import subtask
+from datetime import timedelta, datetime
 from pyquery import PyQuery as pq
-from datetime import timedelta
-import logging
-import re
 from scraping.cache import cache
 from scraping.ioutils import fetch_url
-from scraping.models import ScraperPageSource
+from scraping.models import PeriodicScrape
+import logging
+import re
 
 
 @periodic_task(run_every=timedelta(seconds=60))
 def scrape_indexes():
-    for source in ScraperPageSource.objects.filter(enabled=True)
-
+    # TODO: could this be more efficient by selecting periodic scrapes by filtering
+    # the most recent scrape attempt? 
+    # see http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/
+    # but it doesn't look nice...
+    
+    for source in PeriodicScrape.objects.filter(enabled=True):
+        last_scrape = source.get_last_scrape()
+        if last_scrape is None or last_scrape + timedelta(seconds=source.scrape_every) < datetime.now():
+            # we need to scrape!
+            # scrape(source)
+            pass
 
 @task(rate_limit='1/s')
 def fetch_html(url, callback):

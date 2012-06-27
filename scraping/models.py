@@ -1,12 +1,8 @@
-from django.db import models
 from django.core.urlresolvers import reverse
+from django.db import models
 from gubbins.db.field import EnumField
+from gubbins.db.manager import InheritanceManager
 
-
-class PageType(EnumField):
-    RSS_FEED = 'rss_index'
-    SITE_INDEX = 'site_index'
-    PAGE = 'page'
 
 class ScrapeStatus(EnumField):
     IN_PROGRESS = 'in_progress'
@@ -24,17 +20,27 @@ class ScraperPage(models.Model):
     be periodically checked and new links to news articles or other index
     pages would be started.
     """
+    objects = InheritanceManager()
     
     url = models.URLField(max_length=1000)
-    scrape_every = models.IntegerField()
-    enabled = models.BooleanField()
-    page_source_type = PageType()
 
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
     
+    def get_last_scrape(self):
+        attempts = self.scrapeattempt_set.order_by('-attempted_on')
+        if attempts.count() == 0:
+            return None
+        return attempts[0]
+    
     def __unicode__(self):
-        return self.name
+        return self.url
+
+
+class PeriodicScrape(ScraperPage):
+
+    scrape_every = models.IntegerField()
+    enabled = models.BooleanField()
 
 
 
