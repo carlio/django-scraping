@@ -11,7 +11,6 @@ _packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
 _install_requires = [
             'django',
             'django-annoying',
-            'south',
             'celery',
             'pyquery',
             'requests',
