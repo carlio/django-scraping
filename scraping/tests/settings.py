@@ -1,4 +1,6 @@
 
+INSTALLED_APPS = ['scraping']
+
 SCRAPER_CACHE_MODULE='scraping.cache.dummy'
 
 DATABASES = {
