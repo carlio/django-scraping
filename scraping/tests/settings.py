@@ -1,5 +1,6 @@
 
 INSTALLED_APPS = ['django_jenkins', 'scraping', 'south']
+PROJECT_APPS = ['scraping']
 
 SCRAPER_CACHE_MODULE='scraping.cache.dummy'
 
