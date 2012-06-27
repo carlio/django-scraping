@@ -21,6 +21,9 @@ _install_requires = [
        ]
 
 setup( name='django-scraping',
+       url='https://github.com/carlio/django-scraping',
+       author='Carl Crowder',
+       author_email='django-scraping@jqx.be',
        version=_version,
        packages=_packages,
        install_requires=_install_requires,
