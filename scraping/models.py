@@ -3,13 +3,19 @@ from django.core.urlresolvers import reverse
 from gubbins.db.field import EnumField
 
 
-class PageSourceType(EnumField):
-    RSS_FEED = 'rss'
-    SITE_INDEX = 'site'
+class PageType(EnumField):
+    RSS_FEED = 'rss_index'
+    SITE_INDEX = 'site_index'
+    PAGE = 'page'
+
+class ScrapeStatus(EnumField):
+    IN_PROGRESS = 'in_progress'
+    SUCCESS = 'success'
+    FAILURE = 'failure'
 
 
 
-class ScraperPageSource(models.Model):
+class ScraperPage(models.Model):
     """
     This model represents the initial source of scraper pages.
     
@@ -21,33 +27,27 @@ class ScraperPageSource(models.Model):
     
     url = models.URLField(max_length=1000)
     scrape_every = models.IntegerField()
+    enabled = models.BooleanField()
+    page_source_type = PageType()
 
-    page_source_type = PageSourceType()
-
-
-class ScraperPage(models.Model):
-    
-    url = models.URLField(max_length=1000)
-    last_scrape = models.DateTimeField(null=True, blank=True)
-    success = models.BooleanField()
-    
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
     
     def __unicode__(self):
         return self.name
 
-    
 
-class ParseFailure(models.Model):
+
+class ScrapeAttempt(models.Model):
+    attempted_on = models.DateTimeField(auto_now_add=True)
+    state = ScrapeStatus(default=ScrapeStatus.IN_PROGRESS)
+    page = models.ForeignKey(ScraperPage)
+    error_message = models.TextField(null=True, blank=True)
+
+    @property
+    def success(self):
+        return self.state == ScrapeStatus.SUCCESS
     
-    scraper_page = models.ForeignKey(ScraperPage)
-    parse_date = models.DateTimeField(auto_now_add=True)
-    message = models.TextField()
-    
-    def __init__(self, *args, **kwargs):
-        super(ParseFailure, self).__init__(*args, **kwargs)
-        
     def get_summary(self):
         lines = self.message.split('\n')
         lines = filter(lambda x:x.strip()!='', lines)

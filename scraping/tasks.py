@@ -1,36 +1,19 @@
 # -*- coding: UTF-8 -*-
-from celery.task import task
+from celery.task import task, periodic_task
 from celery.task.sets import subtask
-from django.conf import settings
 from pyquery import PyQuery as pq
+from datetime import timedelta
 import logging
 import re
-import urllib2
 from scraping.cache import cache
+from scraping.ioutils import fetch_url
+from scraping.models import ScraperPageSource
 
 
-def _open(url):
-    headers = { 'User-Agent': settings.SCRAPER_USER_AGENT }
-    req = urllib2.Request( url, headers=headers )
-    resp = urllib2.urlopen( req, timeout=30 )
-    
-    content = resp.read()
-    real_url = resp.geturl()
-    
-    if 'content-type' in resp.headers and 'charset=' in resp.headers['content-type']:
-        content_type = resp.headers['content-type']
-        encoding = content_type.split('charset=')[-1]
-        content = unicode(content, encoding)
-    elif 'http-equiv="content-type"' in content.lower() or 'http-equiv=\'content-type\'' in content.lower():
-        # there is a meta tag declaring the encoding
-        # <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        matches = re.findall('charset=([a-zA-Z0-9-]+)', content)
-        if len(matches) > 0:
-            charset = matches[0]
-            content = unicode(content, charset)
-   
-    return content, real_url
-  
+@periodic_task(run_every=timedelta(seconds=60))
+def scrape_indexes():
+    for source in ScraperPageSource.objects.filter(enabled=True)
+
 
 @task(rate_limit='1/s')
 def fetch_html(url, callback):
@@ -38,7 +21,7 @@ def fetch_html(url, callback):
     # get the XML and remove the namespace so we can use PyQuery (as
     # PyQuery fails when trying to use namespaces in selectors due to
     # an underlying lxml bug - see https://bitbucket.org/olauzanne/pyquery/issue/17/pyquery-fails-when-trying-to-query-a
-    contents, real_url = _open(url)
+    contents, real_url = fetch_url(url)
     contents = re.sub('xmlns.*?".*?"','',contents)
     
     # stick the contents into the cache
