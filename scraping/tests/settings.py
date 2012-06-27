@@ -1,5 +1,5 @@
 
-INSTALLED_APPS = ['scraping']
+INSTALLED_APPS = ['scraping', 'south']
 
 SCRAPER_CACHE_MODULE='scraping.cache.dummy'
 
