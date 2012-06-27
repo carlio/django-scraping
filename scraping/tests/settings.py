@@ -1,5 +1,5 @@
 
-INSTALLED_APPS = ['scraping', 'south']
+INSTALLED_APPS = ['django_jenkins', 'scraping', 'south']
 
 SCRAPER_CACHE_MODULE='scraping.cache.dummy'
 
