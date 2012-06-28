@@ -1,5 +1,5 @@
 
 registry = {}
 
-def register(callable, page_type):
-    registry[page_type] = callable
+def register(scraper, callable):
+    registry[scraper] = callable

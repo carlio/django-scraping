@@ -1,14 +1,18 @@
+from datetime import timedelta, datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from gubbins.db.field import EnumField
 from gubbins.db.manager import InheritanceManager
-from datetime import timedelta, datetime
 
 
 class ScrapeStatus(EnumField):
     IN_PROGRESS = 'in_progress'
     SUCCESS = 'success'
     FAILURE = 'failure'
+    
+class PageType(EnumField):
+    RSS = 'rss'
+    HTML = 'html'
 
 
 class ScraperPageBase(models.Model):
@@ -16,7 +20,8 @@ class ScraperPageBase(models.Model):
     objects = InheritanceManager()
     
     url = models.URLField(max_length=1000)
-    page_type = models.CharField(max_length=100)
+    page_type = PageType(default=PageType.HTML) 
+    scraper = models.CharField(max_length=100)
 
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])

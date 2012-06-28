@@ -5,7 +5,7 @@ from datetime import timedelta
 from pyquery import PyQuery as pq
 from scraping.cache import cache
 from scraping.ioutils import fetch_url
-from scraping.models import PeriodicScrape
+from scraping.models import PeriodicScrape, PageType
 import logging
 import re
 from scraping.handlers import registry
@@ -26,8 +26,11 @@ def scrape_indexes():
         
 @task
 def handle_page_scrape(html, url, ffk, scraper_page):
-    doc = make_doc(html, url)
-    registry[scraper_page.page_type](doc, scraper_page)
+    if scraper_page.page_type == PageType.HTML:
+        doc = make_doc(html, url)
+    else:
+        raise NotImplementedError
+    registry[scraper_page.scraper](doc, scraper_page)
     
     
 
