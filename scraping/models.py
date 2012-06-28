@@ -11,8 +11,6 @@ class ScrapeStatus(EnumField):
 
 
 class ScraperPageBase(models.Model):
-    class Meta:
-        abstract = True
     
     objects = InheritanceManager()
     
@@ -48,13 +46,16 @@ class PeriodicScrape(ScraperPageBase):
 
     scrape_every = models.IntegerField()
     enabled = models.BooleanField()
+    
+    def __unicode__(self):
+        return '%s (every %s seconds)' % (self.url, self.scrape_every)
 
 
 
 class ScrapeAttempt(models.Model):
     attempted_on = models.DateTimeField(auto_now_add=True)
     state = ScrapeStatus(default=ScrapeStatus.IN_PROGRESS)
-    page = models.ForeignKey(ScraperPage)
+    page = models.ForeignKey(ScraperPageBase)
     error_message = models.TextField(null=True, blank=True)
 
     @property
