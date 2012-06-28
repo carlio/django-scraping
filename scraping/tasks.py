@@ -8,6 +8,7 @@ from scraping.ioutils import fetch_url
 from scraping.models import PeriodicScrape
 import logging
 import re
+from scraping.handlers import registry
 
 
 @periodic_task(run_every=timedelta(seconds=60))
@@ -17,15 +18,18 @@ def scrape_indexes():
     # see http://blog.roseman.org.uk/2010/08/14/getting-related-item-aggregate/
     # but it doesn't look nice...
     
-    for source in PeriodicScrape.objects.filter(enabled=True):
-        last_scrape = source.get_last_scrape()
-        if last_scrape is None or last_scrape + timedelta(seconds=source.scrape_every) < datetime.now():
+    for scraper_page in PeriodicScrape.objects.filter(enabled=True):
+        if scraper_page.scrape_due():
             # we need to scrape!
-            fetch_html.delay(source.url, handle_page_scrape)
+            fetch(scraper_page.url, get_ffk(), handle_page_scrape, callback_kwargs={'scraper_page': scraper_page})
+    
         
 @task
-def handle_page_scrape(html, url, ffk, page):
-    print 'yo'
+def handle_page_scrape(html, url, ffk, scraper_page):
+    doc = make_doc(html, url)
+    registry[scraper_page.page_type](doc, scraper_page)
+    
+    
 
 @task(rate_limit='1/s')
 def fetch_html(url, callback):

@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from gubbins.db.field import EnumField
 from gubbins.db.manager import InheritanceManager
+from datetime import timedelta, datetime
 
 
 class ScrapeStatus(EnumField):
@@ -15,6 +16,7 @@ class ScraperPageBase(models.Model):
     objects = InheritanceManager()
     
     url = models.URLField(max_length=1000)
+    page_type = models.CharField(max_length=100)
 
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
@@ -47,6 +49,14 @@ class PeriodicScrape(ScraperPageBase):
     scrape_every = models.IntegerField()
     enabled = models.BooleanField()
     
+    def scrape_due(self):
+        last_scrape = self.get_last_scrape()
+        if last_scrape is None:
+            return True
+        if last_scrape + timedelta(seconds=self.scrape_every) < datetime.now():
+            return True
+        return False
+            
     def __unicode__(self):
         return '%s (every %s seconds)' % (self.url, self.scrape_every)
 
