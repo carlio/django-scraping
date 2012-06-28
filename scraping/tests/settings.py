@@ -1,5 +1,12 @@
 
-INSTALLED_APPS = ['django_jenkins', 'scraping', 'south']
+INSTALLED_APPS = ['scraping', 'south']
+try:
+    import django_jenkins #@UnusedImport
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS += ['django_jenkins']
+    
 PROJECT_APPS = ['scraping']
 
 SCRAPER_CACHE_MODULE='scraping.cache.dummy'
