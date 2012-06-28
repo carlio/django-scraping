@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from celery.task import task, periodic_task
 from celery.task.sets import subtask
-from datetime import timedelta, datetime
+from datetime import timedelta
 from pyquery import PyQuery as pq
 from scraping.cache import cache
 from scraping.ioutils import fetch_url
@@ -11,7 +11,7 @@ import re
 from scraping.handlers import registry
 
 
-@periodic_task(run_every=timedelta(seconds=60))
+@periodic_task(run_every=timedelta(seconds=5))
 def scrape_indexes():
     # TODO: could this be more efficient by selecting periodic scrapes by filtering
     # the most recent scrape attempt? 

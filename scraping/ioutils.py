@@ -1,5 +1,6 @@
 from django.conf import settings
 import urllib2
+import re
 
 
 def fetch_url(url):
