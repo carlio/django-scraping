@@ -21,8 +21,11 @@ def scrape_indexes():
         last_scrape = source.get_last_scrape()
         if last_scrape is None or last_scrape + timedelta(seconds=source.scrape_every) < datetime.now():
             # we need to scrape!
-            # scrape(source)
-            pass
+            fetch_html.delay(source.url, handle_page_scrape)
+        
+@task
+def handle_page_scrape(html, url, ffk, page):
+    print 'yo'
 
 @task(rate_limit='1/s')
 def fetch_html(url, callback):
