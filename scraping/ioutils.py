@@ -13,6 +13,7 @@ def fetch_url(url):
     content = resp.read()
     real_url = resp.geturl()
     
+    
     if 'content-type' in resp.headers and 'charset=' in resp.headers['content-type']:
         content_type = resp.headers['content-type']
         encoding = content_type.split('charset=')[-1]
