@@ -15,6 +15,7 @@ _install_requires = [
             'pyquery',
             'requests',
             
+            'feedparser',
             'Pillow', # TODO: make this an optional dependency
             
             'django-gubbins', # TODO: this is not available on PyPI right now!
