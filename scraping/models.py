@@ -10,16 +10,10 @@ class ScrapeStatus(EnumField):
     FAILURE = 'failure'
 
 
-
-class ScraperPage(models.Model):
-    """
-    This model represents the initial source of scraper pages.
+class ScraperPageBase(models.Model):
+    class Meta:
+        abstract = True
     
-    One example use case is an RSS feed, which simply lists new pages
-    to be scraped. Another is the index page of a news site, which would
-    be periodically checked and new links to news articles or other index
-    pages would be started.
-    """
     objects = InheritanceManager()
     
     url = models.URLField(max_length=1000)
@@ -37,7 +31,20 @@ class ScraperPage(models.Model):
         return self.url
 
 
-class PeriodicScrape(ScraperPage):
+class ScraperPage(ScraperPageBase):
+    """
+    This model represents the initial source of scraper pages.
+    
+    One example use case is an RSS feed, which simply lists new pages
+    to be scraped. Another is the index page of a news site, which would
+    be periodically checked and new links to news articles or other index
+    pages would be started.
+    """
+    pass
+    
+
+
+class PeriodicScrape(ScraperPageBase):
 
     scrape_every = models.IntegerField()
     enabled = models.BooleanField()

@@ -17,7 +17,8 @@ class Migration(SchemaMigration):
 
         # Adding model 'PeriodicScrape'
         db.create_table('scraping_periodicscrape', (
-            ('scraperpage_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['scraping.ScraperPage'], unique=True, primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('url', self.gf('django.db.models.fields.URLField')(max_length=1000)),
             ('scrape_every', self.gf('django.db.models.fields.IntegerField')()),
             ('enabled', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
@@ -47,10 +48,11 @@ class Migration(SchemaMigration):
 
     models = {
         'scraping.periodicscrape': {
-            'Meta': {'object_name': 'PeriodicScrape', '_ormbases': ['scraping.ScraperPage']},
+            'Meta': {'object_name': 'PeriodicScrape'},
             'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'scrape_every': ('django.db.models.fields.IntegerField', [], {}),
-            'scraperpage_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['scraping.ScraperPage']", 'unique': 'True', 'primary_key': 'True'})
+            'url': ('django.db.models.fields.URLField', [], {'max_length': '1000'})
         },
         'scraping.scrapeattempt': {
             'Meta': {'object_name': 'ScrapeAttempt'},
