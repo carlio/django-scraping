@@ -1,5 +1,12 @@
 from django.utils.importlib import import_module
 from django.conf import settings
 
-cache_module = getattr(settings, 'SCRAPER_CACHE_MODULE', 'scraping.cache.dummy')
-cache = import_module(cache_module)
+def _get_cache():
+    cache_class = getattr(settings, 'SCRAPER_CACHE_CLASS', 'scraping.cache.dummy.DummyCache')
+    module_name, class_name = cache_class.rsplit('.', 1)
+    module = import_module(module_name)
+    return getattr(module, class_name)()
+
+
+
+cache = _get_cache()

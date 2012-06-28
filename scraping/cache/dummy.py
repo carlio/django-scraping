@@ -10,7 +10,7 @@ class DummyCache(ScraperCacheBase):
         return 0, 0
     
     def get_html(self, url):
-        return None
+        return None, None
 
     def put_html(self, url, html, real_url):
         pass
