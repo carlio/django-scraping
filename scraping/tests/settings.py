@@ -10,6 +10,7 @@ else:
 PROJECT_APPS = ['scraping']
 
 SCRAPER_CACHE_MODULE='scraping.cache.dummy'
+SOUTH_TESTS_MIGRATE=False
 
 DATABASES = {
         'default': {
