@@ -1,11 +1,13 @@
 
-INSTALLED_APPS = ['scraping', 'south']
-try:
-    import django_jenkins #@UnusedImport
-except ImportError:
-    pass
-else:
-    INSTALLED_APPS += ['django_jenkins']
+INSTALLED_APPS = ['scraping']
+
+for module in ('django_jenkins', 'south'):
+    try:
+        __import__(module)
+    except ImportError:
+        pass
+    else:
+        INSTALLED_APPS += [module]
     
 PROJECT_APPS = ['scraping']
 
