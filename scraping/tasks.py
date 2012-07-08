@@ -8,6 +8,7 @@ from scraping.ioutils import fetch_url
 from scraping.models import PeriodicScrape, PageType
 import logging
 import re
+import feedparser
 from scraping.handlers import registry
 
 
@@ -25,9 +26,11 @@ def scrape_indexes():
     
         
 @task
-def handle_page_scrape(html, url, ffk, scraper_page):
+def handle_page_scrape(contents, url, ffk, scraper_page):
     if scraper_page.page_type == PageType.HTML:
-        doc = make_doc(html, url)
+        doc = make_doc(contents, url)
+    elif scraper_page.page_type == PageType.RSS:
+        doc = feedparser.parse(contents)
     else:
         raise NotImplementedError
     registry[scraper_page.scraper](doc, scraper_page)
