@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from gubbins.db.field import EnumField
 from gubbins.db.manager import InheritanceManager
+from django.utils import timezone
+import logging
 
 
 class ScrapeStatus(EnumField):
@@ -25,6 +27,9 @@ class ScraperPageBase(models.Model):
 
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
+    
+    def start_scrape(self):
+        return ScrapeAttempt.objects.create(page=self)
     
     def get_last_scrape(self):
         attempts = self.scrapeattempt_set.order_by('-attempted_on')
@@ -56,10 +61,16 @@ class PeriodicScrape(ScraperPageBase):
     
     def scrape_due(self):
         last_scrape = self.get_last_scrape()
+        
         if last_scrape is None:
+            logging.debug('Never scraped before, so a scrape is due')
             return True
+        
         if last_scrape + timedelta(seconds=self.scrape_every) < datetime.now():
+            logging.debug('Last scrape was more than %s seconds ago, so a scrape is due' % self.scrape_every)
             return True
+        
+        logging.debug('Scrape is not due')
         return False
             
     def __unicode__(self):
@@ -68,7 +79,8 @@ class PeriodicScrape(ScraperPageBase):
 
 
 class ScrapeAttempt(models.Model):
-    attempted_on = models.DateTimeField(auto_now_add=True)
+    started = models.DateTimeField(auto_now_add=True)
+    completed = models.DateTimeField(null=True)
     state = ScrapeStatus(default=ScrapeStatus.IN_PROGRESS)
     page = models.ForeignKey(ScraperPageBase)
     error_message = models.TextField(null=True, blank=True)
@@ -76,6 +88,12 @@ class ScrapeAttempt(models.Model):
     @property
     def success(self):
         return self.state == ScrapeStatus.SUCCESS
+    
+    def complete(self, state=ScrapeStatus.SUCCESS, error_message=None):
+        self.completed = timezone.now()
+        self.error_message = error_message
+        self.state = state
+        self.save()
     
     def get_summary(self):
         lines = self.message.split('\n')
@@ -87,5 +105,5 @@ class ScrapeAttempt(models.Model):
         return '\n'.join( lines[-3:] )
     
     def __unicode__(self):
-        return u'failure parsing %s' % self.scraper_page
+        return u'%s scrape for %s started on %s' % (self.get_state_display(), self.scraper_page, self.started)
     
