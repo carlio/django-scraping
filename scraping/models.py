@@ -5,6 +5,7 @@ from gubbins.db.field import EnumField
 from gubbins.db.manager import InheritanceManager
 from django.utils import timezone
 import logging
+from scraping.tasks import get_ffk, fetch
 
 
 class ScrapeStatus(EnumField):
@@ -24,12 +25,15 @@ class ScraperPageBase(models.Model):
     url = models.URLField(max_length=1000)
     page_type = PageType(default=PageType.HTML) 
     scraper = models.CharField(max_length=100)
-
+    
+    def schedule_scrape(self, use_cache=True, fetch_if_missing=True):
+        ffk = get_ffk(use_cache, fetch_if_missing)
+        attempt = ScrapeAttempt.objects.create(page=self)
+        # we have to use the task name here to avoid circular imports between models.py and tasks.py...
+        fetch(self.url, ffk, 'scraping.tasks.handle_page_scrape', callback_kwargs={'scraper_page': self, 'attempt': attempt})
+  
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
-    
-    def start_scrape(self):
-        return ScrapeAttempt.objects.create(page=self)
     
     def get_last_scrape(self):
         attempts = self.scrapeattempt_set.order_by('-started')
@@ -94,6 +98,9 @@ class ScrapeAttempt(models.Model):
         self.error_message = error_message
         self.state = state
         self.save()
+        
+    def reschedule(self, use_cache=True, fetch_if_missing=True):
+        self.page.schedule_scrape(use_cache, fetch_if_missing)
         
     def get_page_url(self):
         # required for the admin list display, since it can't handle "page__url"

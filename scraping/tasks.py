@@ -7,10 +7,12 @@ from scraping.cache import cache
 from scraping.handlers import registry
 from scraping.ioutils import fetch_url
 from scraping.models import PeriodicScrape, PageType, ScrapeStatus
+import celery
 import feedparser
 import logging
 import re
 import traceback
+
 
 
 
@@ -24,9 +26,8 @@ def scrape_indexes():
     for scraper_page in PeriodicScrape.objects.filter(enabled=True):
         if scraper_page.scrape_due():
             # we need to scrape!
-            attempt = scraper_page.start_scrape()
-            fetch(scraper_page.url, get_ffk(), handle_page_scrape, callback_kwargs={'scraper_page': scraper_page, 'attempt': attempt})
-    
+            scraper_page.schedule_scrape()
+              
         
 @task
 def handle_page_scrape(contents, url, ffk, scraper_page, attempt):
@@ -45,8 +46,7 @@ def handle_page_scrape(contents, url, ffk, scraper_page, attempt):
         attempt.complete(ScrapeStatus.FAILURE, error_message)
     else:
         attempt.complete()
-    
-    
+
 
 @task(rate_limit='1/s')
 def fetch_html(url, callback):
@@ -73,12 +73,17 @@ def make_doc(html, url):
 
 
     
-def fetch(url, ffk, callback, callback_args=None, callback_kwargs=None):
+def fetch(url, ffk, callback_or_taskname, callback_args=None, callback_kwargs=None):
     use_cache = ffk['use_cache']
     fetch_if_missing = ffk['fetch_if_missing']
     
     callback_args = callback_args or []
     callback_kwargs = callback_kwargs or {}
+    
+    if isinstance(callback_or_taskname, (str, unicode)):
+        callback = celery.registry.tasks[callback_or_taskname]
+    else:
+        callback = callback_or_taskname
     
     if use_cache:
         html, real_url = cache.get_html(url)
@@ -96,4 +101,6 @@ def fetch(url, ffk, callback, callback_args=None, callback_kwargs=None):
 def get_ffk(use_cache=True, fetch_if_missing=True):
     return {'use_cache': use_cache,
             'fetch_if_missing': fetch_if_missing }
+    
+    
 
