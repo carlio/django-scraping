@@ -66,7 +66,7 @@ class PeriodicScrape(ScraperPageBase):
             logging.debug('Never scraped before, so a scrape is due')
             return True
         
-        if last_scrape + timedelta(seconds=self.scrape_every) < datetime.now():
+        if last_scrape.started + timedelta(seconds=self.scrape_every) < datetime.now():
             logging.debug('Last scrape was more than %s seconds ago, so a scrape is due' % self.scrape_every)
             return True
         
