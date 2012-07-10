@@ -10,9 +10,11 @@ class ScraperPageAdmin(admin.ModelAdmin):
 admin.site.register(ScraperPage, ScraperPageAdmin)
 admin.site.register(PeriodicScrape, ScraperPageAdmin)
 
-admin.site.register(ScrapeAttempt)
-#class ParseFailureAdmin(admin.ModelAdmin):
-#    readonly_fields = ('scraper_page',)
-#    search_fields = ('scraper_page__url',)
-#admin.site.register(ParseFailure, ParseFailureAdmin)
+
+class ScrapeAttemptAdmin(admin.ModelAdmin):
+    search_fields = ('page__url',)
+    list_filter = ('started', 'completed', 'state')
+    list_display = ('get_page_url', 'started', 'completed', 'state', 'time_taken')
+    
+admin.site.register(ScrapeAttempt, ScrapeAttemptAdmin)
 

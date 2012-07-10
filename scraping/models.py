@@ -94,6 +94,10 @@ class ScrapeAttempt(models.Model):
         self.error_message = error_message
         self.state = state
         self.save()
+        
+    def get_page_url(self):
+        # required for the admin list display, since it can't handle "page__url"
+        return self.page.url
     
     def get_summary(self):
         lines = self.message.split('\n')
@@ -104,6 +108,14 @@ class ScrapeAttempt(models.Model):
         
         return '\n'.join( lines[-3:] )
     
+    def time_taken(self):
+        if self.state not in (ScrapeStatus.FAILURE, ScrapeStatus.SUCCESS):
+            return '-'
+        diff = (self.completed - self.started)
+        seconds_taken = '%d.%3d' % (diff.seconds, diff.microseconds/1000)
+        return '%s seconds' % (seconds_taken)
+    
     def __unicode__(self):
+        print self.time_taken()
         return u'%s scrape for %s started on %s' % (self.get_state_display(), self.page, self.started)
     
