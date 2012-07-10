@@ -5,7 +5,7 @@ from gubbins.db.field import EnumField
 from gubbins.db.manager import InheritanceManager
 from django.utils import timezone
 import logging
-from scraping.tasks import get_ffk, fetch
+from scraping.ioutils import get_ffk, fetch
 
 
 class ScrapeStatus(EnumField):
