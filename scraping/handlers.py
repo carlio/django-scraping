@@ -1,5 +1,5 @@
 
 registry = {}
 
-def register(scraper, callable):
-    registry[scraper] = callable
+def register(scraper, callable_):
+    registry[scraper] = callable_
