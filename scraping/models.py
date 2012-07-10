@@ -105,5 +105,5 @@ class ScrapeAttempt(models.Model):
         return '\n'.join( lines[-3:] )
     
     def __unicode__(self):
-        return u'%s scrape for %s started on %s' % (self.get_state_display(), self.scraper_page, self.started)
+        return u'%s scrape for %s started on %s' % (self.get_state_display(), self.page, self.started)
     
