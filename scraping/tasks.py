@@ -4,12 +4,14 @@ from celery.task.sets import subtask
 from datetime import timedelta
 from pyquery import PyQuery as pq
 from scraping.cache import cache
+from scraping.handlers import registry
 from scraping.ioutils import fetch_url
-from scraping.models import PeriodicScrape, PageType
+from scraping.models import PeriodicScrape, PageType, ScrapeStatus
+import feedparser
 import logging
 import re
-import feedparser
-from scraping.handlers import registry
+import traceback
+
 
 
 @periodic_task(run_every=timedelta(seconds=5))
@@ -22,18 +24,27 @@ def scrape_indexes():
     for scraper_page in PeriodicScrape.objects.filter(enabled=True):
         if scraper_page.scrape_due():
             # we need to scrape!
-            fetch(scraper_page.url, get_ffk(), handle_page_scrape, callback_kwargs={'scraper_page': scraper_page})
+            attempt = scraper_page.start_scrape()
+            fetch(scraper_page.url, get_ffk(), handle_page_scrape, callback_kwargs={'scraper_page': scraper_page, 'attempt': attempt})
     
         
 @task
-def handle_page_scrape(contents, url, ffk, scraper_page):
+def handle_page_scrape(contents, url, ffk, scraper_page, attempt):
     if scraper_page.page_type == PageType.HTML:
         doc = make_doc(contents, url)
     elif scraper_page.page_type == PageType.RSS:
         doc = feedparser.parse(contents)
     else:
+        attempt.complete(state=ScrapeStatus.FAILURE, error_message="Unknown page type: %s" % scraper_page.page_type)
         raise NotImplementedError
-    registry[scraper_page.scraper](doc, scraper_page)
+    
+    try:
+        registry[scraper_page.scraper](doc, scraper_page)
+    except Exception:
+        error_message = traceback.format_exc()
+        attempt.complete(ScrapeStatus.FAILURE, error_message)
+    else:
+        attempt.complete()
     
     
 
