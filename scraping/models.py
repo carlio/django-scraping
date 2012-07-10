@@ -63,7 +63,7 @@ class PeriodicScrape(ScraperPageBase):
         return False
             
     def __unicode__(self):
-        return '%s (every %s seconds)' % (self.url, self.scrape_every)
+        return '%s (%s, every %s seconds)' % (self.url, self.page_type, self.scrape_every)
 
 
 
