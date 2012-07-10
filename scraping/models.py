@@ -32,7 +32,7 @@ class ScraperPageBase(models.Model):
         return ScrapeAttempt.objects.create(page=self)
     
     def get_last_scrape(self):
-        attempts = self.scrapeattempt_set.order_by('-attempted_on')
+        attempts = self.scrapeattempt_set.order_by('-started')
         if attempts.count() == 0:
             return None
         return attempts[0]
