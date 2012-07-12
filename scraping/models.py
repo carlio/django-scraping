@@ -123,6 +123,5 @@ class ScrapeAttempt(models.Model):
         return '%s seconds' % (seconds_taken)
     
     def __unicode__(self):
-        print self.time_taken()
         return u'%s scrape for %s started on %s' % (self.get_state_display(), self.page, self.started)
     
