@@ -31,7 +31,7 @@ class ScraperPageBase(models.Model):
         ffk = get_ffk(use_cache, fetch_if_missing)
         attempt = ScrapeAttempt.objects.create(page=self)
         # we have to use the task name here to avoid circular imports between models.py and tasks.py...
-        fetch(self.url, ffk, 'scraping.tasks.handle_page_scrape', callback_kwargs={'scraper_page': self, 'attempt': attempt})
+        fetch.delay(self.url, ffk, 'scraping.tasks.handle_page_scrape', callback_kwargs={'scraper_page': self, 'attempt': attempt})
   
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
