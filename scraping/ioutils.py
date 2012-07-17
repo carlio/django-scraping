@@ -28,6 +28,7 @@ def fetch_contents(url, callback):
     subtask(callback).delay(contents, real_url)
 
 
+@task
 def fetch(url, ffk, callback_or_taskname, callback_args=None, callback_kwargs=None):
     use_cache = ffk['use_cache']
     fetch_if_missing = ffk['fetch_if_missing']
