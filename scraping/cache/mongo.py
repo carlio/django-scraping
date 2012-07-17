@@ -33,27 +33,27 @@ def get_stats():
     return stats['req'], stats['hits']
 
 
-def get_html(url):
+def get_contents(url):
     if settings.CACHE_ENABLED:
         record = url_cache.find_one({'url': url})
         if record is None:
             _update_stats(False)
         else:
             _update_stats(True)
-            return record['html'], record['real_url']
+            return record['contents'], record['real_url']
 
     return None, None
 
 
-def put_html(url, html, real_url):
+def put_contents(url, contents, real_url):
     if not settings.CACHE_ENABLED:
         return
     try:
-        url_cache.insert( {'url': url, 'html': html.encode('utf-8'), 'real_url': real_url } )
+        url_cache.insert( {'url': url, 'contents': contents.encode('utf-8'), 'real_url': real_url } )
     except:
         print url
         print real_url
-        print html
+        print contents
 
 
 def get_size():

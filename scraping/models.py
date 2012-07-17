@@ -16,6 +16,7 @@ class ScrapeStatus(EnumField):
 class PageType(EnumField):
     RSS = 'rss'
     HTML = 'html'
+    XML = 'xml'
 
 
 class ScraperPageBase(models.Model):

@@ -10,10 +10,10 @@ class ScraperCacheBase(object):
     def get_stats(self):
         raise NotImplementedError
     
-    def get_html(self, url):
+    def get_contents(self, url):
         raise NotImplementedError
 
-    def put_html(self, url, html, real_url):
+    def put_contents(self, url, contents, real_url):
         raise NotImplementedError
     
     def get_size(self):

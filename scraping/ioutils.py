@@ -1,11 +1,10 @@
+from celery.task import task
+from celery.task.sets import subtask
 from django.conf import settings
 from scraping.cache import cache
-import requests
 import celery
 import logging
-from celery.task.sets import subtask
-import re
-from celery.task import task
+import requests
 
 
 
@@ -18,16 +17,12 @@ def fetch_url(url):
 
 
 @task(rate_limit='1/s')
-def fetch_html(url, callback):
-  
-    # get the XML and remove the namespace so we can use PyQuery (as
-    # PyQuery fails when trying to use namespaces in selectors due to
-    # an underlying lxml bug - see https://bitbucket.org/olauzanne/pyquery/issue/17/pyquery-fails-when-trying-to-query-a
+def fetch_contents(url, callback):
+    
     contents, real_url = fetch_url(url)
-    contents = re.sub('xmlns.*?".*?"','',contents)
     
     # stick the contents into the cache
-    cache.put_html(url, contents, real_url)
+    cache.put_contents(url, contents, real_url)
     
     # TODO: in celery 2.6, this is unecessary - see http://ask.github.com/celery/whatsnew-2.6.html#group-chord-chain-are-now-subtasks
     subtask(callback).delay(contents, real_url)
@@ -46,15 +41,15 @@ def fetch(url, ffk, callback_or_taskname, callback_args=None, callback_kwargs=No
         callback = callback_or_taskname
     
     if use_cache:
-        html, real_url = cache.get_html(url)
+        contents, real_url = cache.get_contents(url)
         
-    logging.debug('cache %s for %s' % ('hit' if html is not None else 'miss', url))
+    logging.debug('cache %s for %s' % ('hit' if contents is not None else 'miss', url))
         
-    if (html is None and fetch_if_missing) or not use_cache:
+    if (contents is None and fetch_if_missing) or not use_cache:
         args = [ffk] + callback_args
-        fetch_html.delay(url, callback=callback.subtask(args=args, kwargs=callback_kwargs))
+        fetch_contents.delay(url, callback=callback.subtask(args=args, kwargs=callback_kwargs))
     else:
-        args = [html, real_url, ffk] + callback_args
+        args = [contents, real_url, ffk] + callback_args
         callback.delay(*args, **callback_kwargs )
 
 

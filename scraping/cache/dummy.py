@@ -9,10 +9,10 @@ class DummyCache(ScraperCacheBase):
     def get_stats(self):
         return 0, 0
     
-    def get_html(self, url):
+    def get_contents(self, url):
         return None, None
 
-    def put_html(self, url, html, real_url):
+    def put_contents(self, url, contents, real_url):
         pass
     
     def get_size(self):

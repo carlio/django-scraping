@@ -6,6 +6,7 @@ from scraping.handlers import registry
 from scraping.models import PeriodicScrape, PageType, ScrapeStatus
 import feedparser
 import traceback
+import re
 
 
 
@@ -28,8 +29,17 @@ def handle_page_scrape(contents, url, ffk, scraper_page, attempt):
     if scraper_page.page_type == PageType.HTML:
         doc = pq(contents)
         doc.make_links_absolute(base_url=url)
+        
     elif scraper_page.page_type == PageType.RSS:
         doc = feedparser.parse(contents)
+        
+    elif scraper_page.page_type == PageType.XML:
+        # remove the namespace so we can use PyQuery (as
+        # PyQuery fails when trying to use namespaces in selectors due to
+        # an underlying lxml bug - see https://bitbucket.org/olauzanne/pyquery/issue/17/pyquery-fails-when-trying-to-query-a
+        contents = re.sub('xmlns.*?".*?"','',contents)
+        doc = pq(contents)
+        
     else:
         attempt.complete(state=ScrapeStatus.FAILURE, error_message="Unknown page type: %s" % scraper_page.page_type)
         raise NotImplementedError
