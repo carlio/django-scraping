@@ -3,8 +3,15 @@ from django.contrib import admin
 from scraping.models import ScraperPage, ScrapeAttempt, PeriodicScrape
 
 
+def schedule_scrape(modeladmin, request, queryset):
+    for page in queryset:
+        page.schedule_scrape()
+schedule_scrape.short_description = 'Schedule scrape'
+
+
 class ScraperPageAdmin(admin.ModelAdmin):
     search_fields = ('url',)
+    actions = [schedule_scrape]
 
 
 admin.site.register(ScraperPage, ScraperPageAdmin)
