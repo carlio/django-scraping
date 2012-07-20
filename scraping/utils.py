@@ -7,3 +7,16 @@ def pyquery_from_xml(xml):
     # an underlying lxml bug - see https://bitbucket.org/olauzanne/pyquery/issue/17/pyquery-fails-when-trying-to-query-a
     xml = re.sub('xmlns.*?".*?"', '', xml)
     return pq(xml)
+
+
+
+class ParseException(Exception):
+    
+    def __init__(self, message, cause=None):
+        self.message = message
+        self.cause = cause
+        
+    def __repr__(self):
+        if self.cause:
+            return '%s\n%s' % (self.message, repr(self.cause))
+        return self.message
