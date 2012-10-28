@@ -26,6 +26,7 @@ class ScraperPageBase(models.Model):
     url = models.URLField(max_length=1000)
     page_type = PageType(default=PageType.HTML) 
     scraper = models.CharField(max_length=100)
+    parent = models.ForeignKey('self', null=True, blank=True)
     
     def schedule_scrape(self, use_cache=True, fetch_if_missing=True):
         ffk = get_ffk(use_cache, fetch_if_missing)
@@ -35,7 +36,8 @@ class ScraperPageBase(models.Model):
   
     def scrape(self, url, scraper, page_type=None):
         page_type = page_type or self.page_type
-        page, _ = ScraperPage.objects.get_or_create(url=url, scraper=scraper, page_type=page_type)
+        page, _ = ScraperPage.objects.get_or_create(url=url, scraper=scraper, 
+                                                    page_type=page_type, parent=self)
         page.schedule_scrape()
         return page
   
