@@ -17,6 +17,7 @@ schedule_scrape.short_description = 'Schedule scrape'
 class ScraperPageAdmin(admin.ModelAdmin):
     search_fields = ('url',)
     actions = [schedule_scrape]
+    list_filter = ('scraper', 'page_type')
 
 
 admin.site.register(ScraperPage, ScraperPageAdmin)
