@@ -1,7 +1,7 @@
 django-scraping
 ===============
 
-
+[![Build Status](https://secure.travis-ci.org/carlio/django-scraping.png)](http://travis-ci.org/carlio/django-scraping)
 
 Other Dependencies
 ==================
