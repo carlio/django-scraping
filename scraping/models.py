@@ -33,6 +33,12 @@ class ScraperPageBase(models.Model):
         # we have to use the task name here to avoid circular imports between models.py and tasks.py...
         fetch.delay(self.url, ffk, 'scraping.tasks.handle_page_scrape', callback_kwargs={'scraper_page': self, 'attempt': attempt})
   
+    def scrape(self, url, scraper, page_type=None):
+        page_type = page_type or self.page_type
+        page, _ = ScraperPage.objects.get_or_create(url=url, scraper=scraper, page_type=page_type)
+        page.schedule_scrape()
+        return page
+  
     def get_absolute_url(self):
         return reverse('scraper_page_detail', args=[self.id])
     

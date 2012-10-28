@@ -6,8 +6,8 @@ from scraping.handlers import registry
 from scraping.models import PeriodicScrape, PageType, ScrapeStatus
 import feedparser
 import traceback
-import re
 from scraping.utils import pyquery_from_xml
+import logging
 
 
 
@@ -42,8 +42,9 @@ def handle_page_scrape(contents, url, ffk, scraper_page, attempt):
         raise NotImplementedError
     
     try:
+        logging.debug('Scraping page %s with scraper %s' % (scraper_page, scraper_page.scraper))
         registry[scraper_page.scraper](doc, scraper_page)
-    except Exception:
+    except:
         error_message = traceback.format_exc()
         attempt.complete(ScrapeStatus.FAILURE, error_message)
     else:

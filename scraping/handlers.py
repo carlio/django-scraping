@@ -1,7 +1,9 @@
+import logging
 
 registry = {}
 
 def register(scraper, callable_):
+    logging.info('Registering scraper %s: %s' % (scraper, callable_))
     registry[scraper] = callable_
     
     
@@ -14,6 +16,3 @@ def register(scraper, callable_):
 # this is probably the best I can do to force tasks to be imported
 # and therefore registered.
 from scraping.tasks import * #@UnusedWildImport
-# best improvement would be an autodiscovery mechanism similar to
-# django views, haystack, celery etc, wherein scraper.__init__,
-# a search is kicked off for anything in <app_name>.handlers.py
