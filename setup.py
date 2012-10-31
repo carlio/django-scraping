@@ -18,7 +18,7 @@ _install_requires = [
             'feedparser',
             'Pillow', # TODO: make this an optional dependency
             
-            'django-gubbins', # TODO: this is not available on PyPI right now!
+            'django-gubbins<1',
        ]
 
 setup( name='django-scraping',
