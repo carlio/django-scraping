@@ -23,7 +23,7 @@ class ScraperPageBase(models.Model):
     
     objects = InheritanceManager()
     
-    url = models.URLField(max_length=1000)
+    url = models.URLField(max_length=1000, db_index=True)
     page_type = PageType(default=PageType.HTML) 
     scraper = models.CharField(max_length=100)
     parent = models.ForeignKey('self', null=True, blank=True)
