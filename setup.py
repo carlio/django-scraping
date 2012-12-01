@@ -17,7 +17,7 @@ _install_requires = [
             'feedparser',
             'Pillow', # TODO: make this an optional dependency
             
-            'django-gubbins<1',
+            'django-gubbins>=1',
        ]
 
 setup( name='django-scraping',
