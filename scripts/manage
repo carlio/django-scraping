@@ -1,0 +1,5 @@
+#!/bin/bash
+COMMAND=$1
+shift
+django-admin.py $COMMAND --settings=scraping.tests.settings $@
+
