@@ -1,6 +1,8 @@
 
 INSTALLED_APPS = ['scraping']
 
+SECRET_KEY='django-scraping-tests-settings'
+
 for module in ('django_jenkins', 'south'):
     try:
         __import__(module)
